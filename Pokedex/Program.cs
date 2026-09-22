@@ -83,6 +83,7 @@ if (app.Environment.IsDevelopment())
 // 3. HTTPS Redirection — redirect HTTP to HTTPS
 app.UseHttpsRedirection();
 
+app.UseDefaultFiles();
 // 4. Static Files — para ma-serve ang wwwroot/index.html
 app.UseStaticFiles();
 
