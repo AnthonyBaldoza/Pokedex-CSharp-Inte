@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Pokedex.DTOs;
 using Pokedex.Services;
@@ -22,7 +23,13 @@ namespace Pokedex.Controllers
     // HINDI responsibilidad ng Controller:
     // - Database operations (Repository ang bahala)
     // - Business logic (Service ang bahala)
+    //
+    // AUTHORIZATION:
+    // - [Authorize] sa CLASS level = LAHAT ng endpoints dito ay kailangan naka-login
+    //   (view, search, filter, add, edit, delete)
+    //   Kapag walang valid na login cookie: 401 Unauthorized
     // ============================================================
+    [Authorize]
     [ApiController]
     [Route("api/pokemon")]
     public class PokemonController : ControllerBase
@@ -37,7 +44,7 @@ namespace Pokedex.Controllers
         }
 
         // ========================
-        // GET api/pokemon
+        // GET api/pokemon  (kailangan naka-login)
         // Kukunin ang LAHAT ng Pokemon
         // Response: 200 OK + List<PokemonResponseDto>
         // ========================
@@ -49,7 +56,7 @@ namespace Pokedex.Controllers
         }
 
         // ========================
-        // GET api/pokemon/{id}
+        // GET api/pokemon/{id}  (kailangan naka-login)
         // Kukunin ang ISANG Pokemon base sa Id
         // Response: 200 OK + PokemonResponseDto
         //           404 Not Found kung wala
@@ -63,7 +70,7 @@ namespace Pokedex.Controllers
         }
 
         // ========================
-        // GET api/pokemon/search?name=Pikachu
+        // GET api/pokemon/search?name=Pikachu  (kailangan naka-login)
         // Maghahanap ng Pokemon base sa name
         // Response: 200 OK + List<PokemonResponseDto>
         // ========================
@@ -79,7 +86,7 @@ namespace Pokedex.Controllers
         }
 
         // ========================
-        // GET api/pokemon/filter?type=Fire
+        // GET api/pokemon/filter?type=Fire  (kailangan naka-login)
         // Mag-filter ng Pokemon base sa type
         // Response: 200 OK + List<PokemonResponseDto>
         // ========================
@@ -95,11 +102,12 @@ namespace Pokedex.Controllers
         }
 
         // ========================
-        // POST api/pokemon
+        // POST api/pokemon  (KAILANGAN NAKA-LOGIN)
         // Gumawa ng BAGONG Pokemon
         // Request Body: PokemonRequestDto (JSON)
         // Response: 201 Created + PokemonResponseDto
         //           400 Bad Request kung invalid ang data
+        //           401 Unauthorized kung hindi naka-login
         // ========================
         [HttpPost]
         public async Task<ActionResult<PokemonResponseDto>> Create(
@@ -115,11 +123,12 @@ namespace Pokedex.Controllers
         }
 
         // ========================
-        // PUT api/pokemon/{id}
+        // PUT api/pokemon/{id}  (KAILANGAN NAKA-LOGIN)
         // I-update ang existing Pokemon
         // Request Body: PokemonRequestDto (JSON)
         // Response: 200 OK + updated PokemonResponseDto
         //           404 Not Found kung wala ang Id
+        //           401 Unauthorized kung hindi naka-login
         // ========================
         [HttpPut("{id}")]
         public async Task<ActionResult<PokemonResponseDto>> Update(
@@ -131,10 +140,11 @@ namespace Pokedex.Controllers
         }
 
         // ========================
-        // DELETE api/pokemon/{id}
+        // DELETE api/pokemon/{id}  (KAILANGAN NAKA-LOGIN)
         // Tanggalin ang Pokemon
         // Response: 204 No Content (walang body — normal para sa DELETE)
         //           Hindi nagre-return ng 404 — common practice
+        //           401 Unauthorized kung hindi naka-login
         // ========================
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)

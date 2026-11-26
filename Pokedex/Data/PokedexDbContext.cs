@@ -1,9 +1,12 @@
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Pokedex.Models;
 
 namespace Pokedex.Data
 {
-    public class PokedexDbContext : DbContext
+    // IdentityDbContext = DbContext + mga table para sa users (AspNetUsers, AspNetRoles, etc.)
+    // Dating: DbContext. Ngayon: IdentityDbContext — para ma-store ang accounts sa parehong database.
+    public class PokedexDbContext : IdentityDbContext
     {
         public PokedexDbContext(DbContextOptions<PokedexDbContext> options) : base(options) { }
 
@@ -11,6 +14,9 @@ namespace Pokedex.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            // IMPORTANTE: dapat UNA ito. Kung wala, hindi ma-map ang Identity tables.
+            base.OnModelCreating(modelBuilder);
+
             modelBuilder.Entity<Pokemon>(entity =>
             {
                 entity.HasKey(p => p.Id);

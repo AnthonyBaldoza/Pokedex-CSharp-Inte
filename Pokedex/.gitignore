@@ -483,4 +483,7 @@ $RECYCLE.BIN/
 
 appsettings.Production.json
 
+publish/bin/
+obj/
 publish/
+appsettings.Production.json

@@ -1,0 +1,378 @@
+/* Game Boy-style login gate + animated Pokémon background. Tweak the variables to match your theme. */
+:root {
+  --auth-red: #c40000;
+  --auth-red-dark: #7a0000;
+  --auth-screen: #8aa80f;
+  --auth-ink: #0f380f;
+  --auth-yellow: #ffd400;
+}
+
+/* LOGIN GATE: until the server says "you're logged in", hide the whole page except the login box. */
+html.auth-locked body > *:not(#auth-overlay) {
+  display: none !important;
+}
+
+/* (kept for compatibility) hide anything marked class="auth-only" when logged out */
+body:not(.logged-in) .auth-only {
+  display: none !important;
+}
+
+#auth-bar {
+  position: fixed;
+  top: 10px;
+  right: 14px;
+  z-index: 900;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  font-family: inherit;
+  font-size: 12px;
+}
+.auth-who {
+  color: var(--auth-yellow);
+  text-shadow: 1px 1px 0 var(--auth-ink);
+  max-width: 40vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#auth-bar button,
+.auth-btn {
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 8px 12px;
+  color: var(--auth-ink);
+  background: var(--auth-yellow);
+  border: 3px solid var(--auth-ink);
+  border-radius: 4px;
+  box-shadow: 0 3px 0 var(--auth-ink);
+}
+#auth-bar button:active,
+.auth-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--auth-ink);
+}
+#auth-bar button:focus-visible,
+.auth-btn:focus-visible,
+#auth-overlay input:focus-visible,
+.auth-link:focus-visible {
+  outline: 3px solid var(--auth-yellow);
+  outline-offset: 2px;
+}
+
+/* ---------- Full-screen gate ---------- */
+#auth-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(
+    ellipse at top,
+    #165016 0%,
+    #0a2a0a 45%,
+    #031003 100%
+  );
+  padding: 16px;
+  overflow-y: auto;
+}
+#auth-overlay[hidden],
+#auth-overlay [hidden] {
+  display: none !important;
+}
+
+.auth-box {
+  position: relative;
+  z-index: 1;
+  width: min(92vw, 420px);
+  padding: 20px 20px 16px;
+  background: var(--auth-red);
+  border: 4px solid var(--auth-red-dark);
+  border-radius: 14px;
+  box-shadow:
+    0 0 0 4px #000,
+    0 12px 30px rgba(0, 0, 0, 0.6);
+  font-family: inherit;
+  animation: auth-pop 0.45s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+@keyframes auth-pop {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.auth-box h2 {
+  margin: 0 0 6px;
+  font-size: 16px;
+  color: var(--auth-yellow);
+  text-shadow: 2px 2px 0 var(--auth-red-dark);
+  letter-spacing: 1px;
+}
+.auth-sub {
+  margin: 0 0 14px;
+  font-size: 11px;
+  color: #ffd9d9;
+}
+
+#auth-form {
+  background: var(--auth-screen);
+  border: 4px solid var(--auth-ink);
+  border-radius: 6px;
+  padding: 14px;
+}
+#auth-form label {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 11px;
+  color: var(--auth-ink);
+  letter-spacing: 0.5px;
+}
+#auth-form input {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 4px;
+  padding: 9px 10px;
+  font: inherit;
+  font-size: 14px;
+  color: #9bbc0f;
+  background: var(--auth-ink);
+  border: 2px solid #000;
+  border-radius: 3px;
+}
+/* error / status message: only shows a box when there is text */
+#auth-msg {
+  margin: 2px 0 10px;
+  font-size: 12px;
+  line-height: 1.35;
+  color: #6b0000;
+  font-weight: bold;
+}
+#auth-msg:not(:empty) {
+  padding: 7px 9px;
+  background: rgba(255, 255, 255, 0.35);
+  border-left: 4px solid var(--auth-red);
+  border-radius: 2px;
+}
+#auth-msg.ok {
+  color: var(--auth-ink);
+  border-left-color: var(--auth-ink);
+}
+#auth-form .auth-btn {
+  width: 100%;
+}
+#auth-form .auth-btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+.auth-link {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  padding: 4px;
+  font: inherit;
+  font-size: 11px;
+  background: none;
+  border: 0;
+  color: var(--auth-ink);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* ---------- Animated background (built by auth.js, sits behind the login box) ---------- */
+#auth-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* twinkling pixel stars */
+#auth-bg .pstar {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: var(--auth-yellow);
+  box-shadow: 0 0 6px var(--auth-yellow);
+  opacity: 0.2;
+  animation: pstar-twinkle 3s ease-in-out infinite;
+}
+@keyframes pstar-twinkle {
+  0%,
+  100% {
+    opacity: 0.12;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.4);
+  }
+}
+
+/* Poké Balls drifting up and spinning */
+#auth-bg .pball {
+  position: absolute;
+  bottom: -90px;
+  box-sizing: border-box;
+  border-radius: 50%;
+  border: 3px solid #0b0b0b;
+  opacity: 0.38;
+  background: linear-gradient(
+    to bottom,
+    #e53935 0 45%,
+    #0b0b0b 45% 55%,
+    #f5f5f5 55% 100%
+  );
+  animation: pball-up 20s linear infinite;
+  will-change: transform;
+}
+#auth-bg .pball::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 30%;
+  height: 30%;
+  transform: translate(-50%, -50%);
+  box-sizing: border-box;
+  border-radius: 50%;
+  background: #f5f5f5;
+  border: 3px solid #0b0b0b;
+}
+@keyframes pball-up {
+  from {
+    transform: translateY(0) rotate(0deg);
+  }
+  to {
+    transform: translateY(-125vh) rotate(360deg);
+  }
+}
+
+/* ground strip the Pokémon run along */
+#auth-bg .pground {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 9vh;
+  min-height: 46px;
+  border-top: 4px solid #2a7a2a;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.05) 0 8px,
+      transparent 8px 16px
+    ),
+    linear-gradient(#0f3a0f, #041204);
+}
+
+/* Pokémon sprites */
+#auth-bg .psprite {
+  position: absolute;
+  left: 0;
+  will-change: transform;
+}
+#auth-bg .psprite img {
+  display: block;
+  width: 88px;
+  height: 88px;
+  image-rendering: pixelated;
+  user-select: none;
+  filter: drop-shadow(0 4px 0 rgba(0, 0, 0, 0.4));
+}
+#auth-bg .psprite.run.right {
+  animation: prun-right linear infinite;
+}
+#auth-bg .psprite.run.left {
+  animation: prun-left linear infinite;
+}
+#auth-bg .psprite.run.right img {
+  scale: -1 1;
+}
+#auth-bg .psprite.run img {
+  animation: pbob 0.42s ease-in-out infinite;
+}
+#auth-bg .psprite.float {
+  animation: pdrift ease-in-out infinite;
+}
+#auth-bg .psprite.float img {
+  width: 72px;
+  height: 72px;
+  opacity: 0.92;
+}
+
+@keyframes prun-right {
+  from {
+    transform: translateX(-160px);
+  }
+  to {
+    transform: translateX(calc(100vw + 160px));
+  }
+}
+@keyframes prun-left {
+  from {
+    transform: translateX(calc(100vw + 160px));
+  }
+  to {
+    transform: translateX(-160px);
+  }
+}
+@keyframes pbob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+@keyframes pdrift {
+  0% {
+    transform: translate(0, 0) rotate(-3deg);
+  }
+  25% {
+    transform: translate(46px, -26px) rotate(2deg);
+  }
+  50% {
+    transform: translate(12px, -54px) rotate(-2deg);
+  }
+  75% {
+    transform: translate(-40px, -24px) rotate(3deg);
+  }
+  100% {
+    transform: translate(0, 0) rotate(-3deg);
+  }
+}
+
+@media (max-width: 600px) {
+  #auth-bg .psprite img {
+    width: 60px;
+    height: 60px;
+  }
+  #auth-bg .psprite.float img {
+    width: 52px;
+    height: 52px;
+  }
+}
+
+/* people who prefer less motion: keep the stars still, hide the moving stuff */
+@media (prefers-reduced-motion: reduce) {
+  #auth-bg .pball,
+  #auth-bg .psprite {
+    display: none;
+  }
+  #auth-bg .pstar,
+  .auth-box {
+    animation: none;
+  }
+}
